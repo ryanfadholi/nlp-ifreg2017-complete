@@ -58,6 +58,20 @@ public class IdStemmer {
 //            });
     
     private final static Rule[] RULES = {
+        //Aturan standar di-
+        new Rule("di",
+                (w) -> w.startsWith("di"),
+                (w) -> w.replace("di","")),
+        //Aturan standar ke-
+        new Rule("ke",
+                (w) -> w.startsWith("ke"),
+                (w) -> w.replace("ke","")),
+        //Aturan standar se-
+        new Rule("se",
+                (w) -> w.startsWith("se"),
+                (w) -> w.replace("se","")),
+        //rule 1-20
+        //........................
         //rule 21
         new Rule("21", 
                 (w) -> w.startsWith("per") && isVowel(w.charAt(3)),
@@ -127,24 +141,63 @@ public class IdStemmer {
         }
         
         String processedQuery = originalQuery;
-        String tempQuery = processedQuery;
+        
+        //-----------------------------------------------
+        //LANGKAH 2 
+        processedQuery = applyStep2(processedQuery);
+        
+        //Cek apakah kata sudah berbentuk kata dasar 
+        if(BaseWordsManager.isBaseWord(processedQuery)){
+            return processedQuery;
+        }
+        
+        //-----------------------------------------------
+        //LANGKAH 3
+        processedQuery = applyStep3(processedQuery);
+        //Cek apakah kata sudah berbentuk kata dasar 
+        if(BaseWordsManager.isBaseWord(processedQuery)){
+            return processedQuery;
+        }
+        
+        processedQuery = applyStep4(processedQuery);
+        
+        return processedQuery;
+    }
+    
+    /*
+    Aplikasi aturan kedua
+    */
+    private static String applyStep2(String word){
+        return word;
+    }
+    
+     /*
+    Aplikasi aturan ketiga
+    */
+    private static String applyStep3(String word){
+        return word;
+    }
+    
+    private static String applyStep4(String word){
+        String result = word;
+        String temp = result;
         
         int ruleCount = 0;
         String previousRule = "";
         String currentRule;
         
         while(ruleCount < 3){
-            
             currentRule = previousRule;
+            
             //Cek jika kata mengandung pasangan prefix-suffix yang dilarang
-            if(containsForbiddenPair(originalQuery)){
-                return originalQuery;
+            if(containsForbiddenPair(word)){
+                return word;
             }
             
             for(Rule rule : RULES){
-                if(rule.match(processedQuery)){
+                if(rule.match(result)){
                     currentRule = rule.definition();
-                    tempQuery = rule.apply(processedQuery);
+                    temp = rule.apply(result);
                     break;
                 }
             }
@@ -163,19 +216,19 @@ public class IdStemmer {
                 break;
             } else {
                 previousRule = currentRule;
-                processedQuery = tempQuery;
+                result = temp;
             }
             
             //Cek apakah kata sudah berbentuk kata dasar
-            if(BaseWordsManager.isBaseWord(originalQuery)){
+            if(BaseWordsManager.isBaseWord(word)){
                 break;
             }
             
             ruleCount++;
         }
         
-        System.out.println("Iterated " + ruleCount + " times.");
+        System.out.println("Rule 4 iterates " + ruleCount + " times.");
         
-        return processedQuery;
+        return result;
     }
 }
