@@ -36,8 +36,8 @@ public class BaseWordsManager {
     }
 
     public static boolean isBaseWord(String word){
-        PreparedStatement stmt = null;       
-        ResultSet rs = null;
+        PreparedStatement stmt;       
+        ResultSet rs;
         boolean queryResult = false;
         
         if(BaseWordsManager.kamusBaseWords == null){

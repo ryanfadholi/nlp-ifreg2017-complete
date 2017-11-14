@@ -61,15 +61,15 @@ public class IdStemmer {
         //Aturan standar di-
         new Rule("di",
                 (w) -> w.startsWith("di"),
-                (w) -> w.replace("di","")),
+                (w) -> w.replaceFirst("di","")),
         //Aturan standar ke-
         new Rule("ke",
                 (w) -> w.startsWith("ke"),
-                (w) -> w.replace("ke","")),
+                (w) -> w.replaceFirst("ke","")),
         //Aturan standar se-
         new Rule("se",
                 (w) -> w.startsWith("se"),
-                (w) -> w.replace("se","")),
+                (w) -> w.replaceFirst("se","")),
         //rule 1-20
         //........................
         //rule 21
@@ -77,13 +77,12 @@ public class IdStemmer {
                 (w) -> w.startsWith("per") && isVowel(w.charAt(3)),
                 (w) -> {
                 ArrayList<String> possibleBaseWords = new ArrayList<>();
-                String initialStem = w.replace("per","");
+                String initialStem = w.replaceFirst("per","");
                 
                 possibleBaseWords.add(initialStem);
                 possibleBaseWords.add("r" + initialStem);
                 
-                return BaseWordsManager.getFirstMatch(possibleBaseWords,
-                        "r" + initialStem);
+                return BaseWordsManager.getFirstMatch(possibleBaseWords,w);
                 }),
         //rule 23, 24, 28, 30, 31
         //........................
@@ -96,7 +95,7 @@ public class IdStemmer {
                      return "ajar";
                  }
                     
-                return w.replace("pel","l");
+                return w.replaceFirst("pe","");
                 })
     };
     
@@ -145,8 +144,7 @@ public class IdStemmer {
         //-----------------------------------------------
         //LANGKAH 2 
         processedQuery = applyStep2(processedQuery);
-        
-        //Cek apakah kata sudah berbentuk kata dasar 
+        //C4 apakah kata sudah berbentuk kata dasar 
         if(BaseWordsManager.isBaseWord(processedQuery)){
             return processedQuery;
         }
@@ -159,9 +157,16 @@ public class IdStemmer {
             return processedQuery;
         }
         
+        //-----------------------------------------------
+        //LANGKAH 4
         processedQuery = applyStep4(processedQuery);
+        //Cek apakah kata sudah berbentuk kata dasar
+        if(BaseWordsManager.isBaseWord(processedQuery)){
+            return processedQuery;
+        }
         
-        return processedQuery;
+        //Jika tidak ada di kamus, asumsikan query adalah kata dasar.
+        return originalQuery;
     }
     
     /*
