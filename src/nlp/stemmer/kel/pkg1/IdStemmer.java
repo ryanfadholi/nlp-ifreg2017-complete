@@ -20,6 +20,8 @@ public class IdStemmer {
     
     private final static char[] VOWELS = {'a','i','u','e','o'};
 
+    private final static char[] GHQ = {'g','h','q'};
+
     private final static PrefixSuffixPair[] FORBIDDEN_PREFIX_SUFFIX_PAIRS = {
         new PrefixSuffixPair("be", "i"),
         new PrefixSuffixPair("di", "an"),
@@ -70,25 +72,88 @@ public class IdStemmer {
         new Rule("se",
                 (w) -> w.startsWith("se"),
                 (w) -> w.replaceFirst("se","")),
-        //rule 1-20
-        //........................
+        //rule 1-14
+        //rule 15
+        new Rule("15", 
+                (w) -> w.startsWith("men") && isVowel(w, 3),
+                (String w) -> {
+                ArrayList<String> possibleBaseWords = new ArrayList<>();
+                String initialStem = w.replace("men","");
+                
+                possibleBaseWords.add("n"+ initialStem);
+                possibleBaseWords.add("t" + initialStem);
+                
+                return BaseWordsManager.getFirstMatch(possibleBaseWords);
+                }),
+        //rule 16
+        new Rule("16", 
+                (w) -> w.startsWith("meng") && isGHQ(w, 4),
+                (w) -> {
+                
+                return w.replace("meng","");
+                }),
+        //rule 17
+        new Rule("17", 
+                (w) -> w.startsWith("meng") && isVowel(w, 4),
+                (w) -> {
+                ArrayList<String> possibleBaseWords = new ArrayList<>();
+                String initialStem = w.replace("meng","");
+                
+                possibleBaseWords.add("k" + initialStem);
+                possibleBaseWords.add(initialStem);
+                
+                return BaseWordsManager.getFirstMatch(possibleBaseWords
+                        );
+                }),
+        //rule 18
+        new Rule("18", 
+                (w) -> w.startsWith("meny") && isVowel(w, 4),
+                (w) -> {
+                
+                return w.replace("meny","s");
+                }),
+        //rule 19
+        new Rule("19", 
+                (w) -> w.startsWith("memp") && isVowel(w,4),
+                
+                (w) -> {
+                
+                return w.replace("mem","");
+                }),
+        //rule 20
+        new Rule("20", 
+                (w) -> w.startsWith("pew")|| w.startsWith("pey") && isVowel(w,4),
+                
+                (w) -> {
+                return w.replace("pe","");
+                }),
         //rule 21
         new Rule("21", 
-                (w) -> w.startsWith("per") && isVowel(w.charAt(3)),
+                (w) -> w.startsWith("per") && isVowel(w, 3),
                 (w) -> {
                 ArrayList<String> possibleBaseWords = new ArrayList<>();
                 String initialStem = w.replaceFirst("per","");
                 
-                possibleBaseWords.add(initialStem);
                 possibleBaseWords.add("r" + initialStem);
+                possibleBaseWords.add(initialStem);
+               
                 
                 return BaseWordsManager.getFirstMatch(possibleBaseWords,w);
                 }),
-        //rule 23, 24, 28, 30, 31
+        //rule 23, 24, 28, 
         //........................
+        //rule 29
+        new Rule("29", 
+                (w) -> w.startsWith("peng") && isGHQ(w, 4),
+                (w) -> {
+                
+                return w.replace("peng","");
+                }),
+        //rule 30, 31
+        //.........................
         //rule 32
         new Rule("32", 
-                (w) -> w.startsWith("pel") && isVowel(w.charAt(3)),
+                (w) -> w.startsWith("pel") && isVowel(w ,3),
                 (w) -> {
                 
                  if(w.equals("pelajar")){
@@ -104,10 +169,43 @@ public class IdStemmer {
         return consonantStream.anyMatch((s) -> s == c);
     }
     
+    private static boolean isConsonant(String word, int pos){
+        //Apabila posisi diluar panjang string, return false
+        if(word.length() < pos+1){
+            return false;
+        }
+        
+        return isConsonant(word.charAt(pos));
+    }
+    
     private static boolean isVowel(char c){
         Stream<Character> vowelStream = IntStream.range(0, VOWELS.length).mapToObj(i -> VOWELS[i]);
         return vowelStream.anyMatch((s) -> s == c);
     }
+    
+    private static boolean isVowel(String word, int pos){
+        //Apabila posisi diluar panjang string, return false
+        if(word.length() < pos+1){
+            return false;
+        }
+        
+        return isVowel(word.charAt(pos));
+    }
+    
+    private static boolean isGHQ(char c){
+        Stream<Character> GHQStream = IntStream.range(0, GHQ.length).mapToObj(i -> GHQ[i]);
+        return GHQStream.anyMatch((s) -> s == c);
+    }
+    
+     private static boolean isGHQ(String word, int pos){
+        //Apabila posisi diluar panjang string, return false
+        if(word.length() < pos+1){
+            return false;
+        }
+        
+        return isGHQ(word.charAt(pos));
+    }
+    
     private static String preprocess(String word){
         return word.trim().toLowerCase();
     }
