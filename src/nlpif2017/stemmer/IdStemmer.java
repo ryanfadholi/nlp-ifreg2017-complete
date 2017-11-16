@@ -86,7 +86,7 @@ public class IdStemmer {
         //rule 1
         //contoh : berusaha -> usaha, berambut -> rambut
         new Rule("1",
-                (w) -> w.startsWith("ber") && isVowel(w.charAt(3)),
+                (w) -> w.startsWith("ber") && isVowel(w, 3),
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem;
@@ -105,8 +105,8 @@ public class IdStemmer {
         //rule 2
         //contoh : berlari -> lari, berjalan -> jalan, berfaedah -> faedah
         new Rule("2",
-                (w) -> (w.startsWith("ber") && isConsonant(w.charAt(3))) || (w.startsWith("ber") && isConsonant(w.charAt(3)) && (w.charAt(3) != 'r')
-                        && (w.charAt(5) != 'e') && (w.charAt(6) != 'r')),
+                (w) -> (w.length() > 6) ? (w.startsWith("ber") && isConsonant(w, 3)) || (w.startsWith("ber") && isConsonant(w, 3) && (w.charAt(3) != 'r')
+                        && (w.charAt(5) != 'e') && (w.charAt(6) != 'r')) : false,
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem = w.replaceFirst("ber","");
