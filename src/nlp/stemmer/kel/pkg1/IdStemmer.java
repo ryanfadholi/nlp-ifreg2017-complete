@@ -72,21 +72,56 @@ public class IdStemmer {
                 (w) -> w.replaceFirst("se","")),
         //rule 1-20
         //........................
-        //rule 21
-        new Rule("21", 
+         //rule 21
+         new Rule("21", 
                 (w) -> w.startsWith("per") && isVowel(w.charAt(3)),
                 (w) -> {
                 ArrayList<String> possibleBaseWords = new ArrayList<>();
-                String initialStem = w.replaceFirst("per","");
+                String initialStem = w.replace("per","");
                 
                 possibleBaseWords.add(initialStem);
                 possibleBaseWords.add("r" + initialStem);
                 
-                return BaseWordsManager.getFirstMatch(possibleBaseWords,w);
+                return BaseWordsManager.getFirstMatch(possibleBaseWords,
+                        "r" + initialStem);
                 }),
-        //rule 23, 24, 28, 30, 31
-        //........................
-        //rule 32
+    
+       new Rule("8",
+                (w) -> w.startsWith("ter") && w.charAt(3) != 'r' && !w.substring(4,6).equals("er"),
+                (w) -> w.replaceFirst("ter", "")),
+        new Rule("9",
+                (w) -> w.startsWith("te") && w.charAt(2) != 'r' && w.substring(3, 5).equals("er"),
+                (w) -> w.replaceFirst("te", "")),
+       new Rule("10", 
+                (w) -> w.startsWith("me") && isVowel(w.charAt(3)) && (w.charAt(2) == 'l' || w.charAt(2) == 'r' || w.charAt(2) == 'w' || w.charAt(2) == 'y'),
+                (w) -> w.replaceFirst("me", "")),
+       
+        new Rule("11", 
+                (w) -> w.startsWith("mem") && (w.charAt(3) == 'b' || w.charAt(3) == 'f' || w.charAt(3) == 'v'),
+                (w) -> w.replaceFirst("mem", "")),
+        new Rule("12", 
+                (w) -> w.startsWith("mempe") && (w.charAt(5) == 'r' || w.charAt(5) == 'l'),
+                (w) -> w.replaceFirst("mempe", "pe")),
+        
+        new Rule("13", 
+                (w) -> w.startsWith("mem") && ( w.charAt(3) == 'r' && isVowel(w.charAt(4)) ) || isVowel(w.charAt(3)),
+                (w) -> {
+                    ArrayList<String> possibleBaseWords = new ArrayList<>();
+                    String initialStem = w.replaceFirst("mem", "");
+                    
+                    if(BaseWordsManager.isBaseWord("m" + initialStem)){
+                        possibleBaseWords.add("m" + initialStem);
+                    } else if(BaseWordsManager.isBaseWord("p" + initialStem)){
+                        possibleBaseWords.add("p" + initialStem);
+                    }
+                    
+                    return BaseWordsManager.getFirstMatch(possibleBaseWords,w);
+                }),
+        
+        new Rule("14", 
+                (w) -> w.startsWith("men") && (w.charAt(3) == 'c' || w.charAt(3) == 'd' || w.charAt(3) == 'j' || w.charAt(3) == 'z') ,
+                (w) -> w.replaceFirst("men", "")),
+        
         new Rule("32", 
                 (w) -> w.startsWith("pel") && isVowel(w.charAt(3)),
                 (w) -> {
@@ -95,7 +130,7 @@ public class IdStemmer {
                      return "ajar";
                  }
                     
-                return w.replaceFirst("pe","");
+                return w.replace("pel","l");
                 })
     };
     

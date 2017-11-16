@@ -52,7 +52,6 @@ public class BaseWordsManager {
             
             //get the result
             queryResult = rs.getBoolean("result");
-            
             //close connections
             rs.close();
             stmt.close();
@@ -60,7 +59,6 @@ public class BaseWordsManager {
             System.out.println("Error in matching word in database: " +
                     e.getMessage());
         }
-        
         return queryResult;
     }
     
