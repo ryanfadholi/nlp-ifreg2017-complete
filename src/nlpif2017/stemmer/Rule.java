@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nlp.stemmer.kel.pkg1;
+package nlpif2017.stemmer;
 
 /**
  *
