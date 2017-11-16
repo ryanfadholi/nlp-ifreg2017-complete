@@ -76,42 +76,39 @@ public class IdStemmer {
         //........................
         //rule 8
         new Rule("8",
-                (w) -> w.startsWith("ter") && w.charAt(3) != 'r' && !w.substring(4,6).equals("er"),
+                (w) -> (w.length() > 6) ? w.startsWith("ter") && w.charAt(3) != 'r' && !w.substring(4,6).equals("er") : false,
                 (w) -> w.replaceFirst("ter", "")),
         //rule 9
         new Rule("9",
-                (w) -> w.startsWith("te") && w.charAt(2) != 'r' && w.substring(3, 5).equals("er"),
+                (w) -> (w.length() > 5) ? w.startsWith("te") && w.charAt(2) != 'r' && w.substring(3, 5).equals("er") : false,
                 (w) -> w.replaceFirst("te", "")),
        //rule 10
         new Rule("10", 
-                (w) -> w.startsWith("me") && isVowel(w.charAt(3)) && (w.charAt(2) == 'l' || w.charAt(2) == 'r' || w.charAt(2) == 'w' || w.charAt(2) == 'y'),
+                (w) -> (w.length() > 4) ? w.startsWith("me") && isVowel(w.charAt(3)) && (w.charAt(2) == 'l' || w.charAt(2) == 'r' || w.charAt(2) == 'w' || w.charAt(2) == 'y') : false,
                 (w) -> w.replaceFirst("me", "")),
         //rule 11
         new Rule("11", 
-                (w) -> w.startsWith("mem") && (w.charAt(3) == 'b' || w.charAt(3) == 'f' || w.charAt(3) == 'v'),
+                (w) -> (w.length() > 4) ? w.startsWith("mem") && (w.charAt(3) == 'b' || w.charAt(3) == 'f' || w.charAt(3) == 'v') : false,
                 (w) -> w.replaceFirst("mem", "")),
         //rule 12
         new Rule("12", 
-                (w) -> w.startsWith("mempe") && (w.charAt(5) == 'r' || w.charAt(5) == 'l'),
+                (w) -> (w.length() > 5) ? w.startsWith("mempe") && (w.charAt(5) == 'r' || w.charAt(5) == 'l') : false,
                 (w) -> w.replaceFirst("mempe", "pe")),
         //rule 13
         new Rule("13", 
-                (w) -> w.startsWith("mem") && ( w.charAt(3) == 'r' && isVowel(w.charAt(4)) ) || isVowel(w.charAt(3)),
+                (w) -> (w.length() > 4) ? w.startsWith("mem") && ( w.charAt(3) == 'r' && isVowel(w.charAt(4)) ) || isVowel(w.charAt(3)) : false,
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem = w.replaceFirst("mem", "");
                     
-                    if(BaseWordsManager.isBaseWord("m" + initialStem)){
-                        possibleBaseWords.add("m" + initialStem);
-                    } else if(BaseWordsManager.isBaseWord("p" + initialStem)){
-                        possibleBaseWords.add("p" + initialStem);
-                    }
+                    possibleBaseWords.add("p" + initialStem);
+                    possibleBaseWords.add("m" + initialStem);
                     
                     return BaseWordsManager.getFirstMatch(possibleBaseWords,w);
                 }),
         //rule 14
         new Rule("14", 
-                (w) -> w.startsWith("men") && (w.charAt(3) == 'c' || w.charAt(3) == 'd' || w.charAt(3) == 'j' || w.charAt(3) == 'z') ,
+                (w) -> (w.length() > 3) ? w.startsWith("men") && (w.charAt(3) == 'c' || w.charAt(3) == 'd' || w.charAt(3) == 'j' || w.charAt(3) == 'z') : false,
                 (w) -> w.replaceFirst("men", "")),
         //rule 15
         new Rule("15", 
@@ -341,6 +338,7 @@ public class IdStemmer {
             for(Rule rule : RULES){
                 if(rule.match(result)){
                     currentRule = rule.definition();
+                    System.out.println(rule.definition() + "applied.");
                     temp = rule.apply(result);
                     break;
                 }
@@ -364,7 +362,7 @@ public class IdStemmer {
             }
             
             //Cek apakah kata sudah berbentuk kata dasar
-            if(BaseWordsManager.isBaseWord(word)){
+            if(BaseWordsManager.isBaseWord(result)){
                 break;
             }
             
