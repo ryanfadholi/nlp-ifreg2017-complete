@@ -20,6 +20,8 @@ public class IdStemmer {
     
     private final static char[] VOWELS = {'a','i','u','e','o'};
 
+    private final static char[] GHQ = {'g','h','q'};
+
     private final static PrefixSuffixPair[] FORBIDDEN_PREFIX_SUFFIX_PAIRS = {
         new PrefixSuffixPair("be", "i"),
         new PrefixSuffixPair("di", "an"),
@@ -70,32 +72,136 @@ public class IdStemmer {
         new Rule("se",
                 (w) -> w.startsWith("se"),
                 (w) -> w.replaceFirst("se","")),
-        //rule 1-20
+        //rule 1-7
         //........................
-        //rule 21
-        new Rule("21", 
-                (w) -> w.startsWith("per") && isVowel(w.charAt(3)),
+        //rule 8
+        new Rule("8",
+                (w) -> w.startsWith("ter") && w.charAt(3) != 'r' && !w.substring(4,6).equals("er"),
+                (w) -> w.replaceFirst("ter", "")),
+        //rule 9
+        new Rule("9",
+                (w) -> w.startsWith("te") && w.charAt(2) != 'r' && w.substring(3, 5).equals("er"),
+                (w) -> w.replaceFirst("te", "")),
+       //rule 10
+        new Rule("10", 
+                (w) -> w.startsWith("me") && isVowel(w.charAt(3)) && (w.charAt(2) == 'l' || w.charAt(2) == 'r' || w.charAt(2) == 'w' || w.charAt(2) == 'y'),
+                (w) -> w.replaceFirst("me", "")),
+        //rule 11
+        new Rule("11", 
+                (w) -> w.startsWith("mem") && (w.charAt(3) == 'b' || w.charAt(3) == 'f' || w.charAt(3) == 'v'),
+                (w) -> w.replaceFirst("mem", "")),
+        //rule 12
+        new Rule("12", 
+                (w) -> w.startsWith("mempe") && (w.charAt(5) == 'r' || w.charAt(5) == 'l'),
+                (w) -> w.replaceFirst("mempe", "pe")),
+        //rule 13
+        new Rule("13", 
+                (w) -> w.startsWith("mem") && ( w.charAt(3) == 'r' && isVowel(w.charAt(4)) ) || isVowel(w.charAt(3)),
+                (w) -> {
+                    ArrayList<String> possibleBaseWords = new ArrayList<>();
+                    String initialStem = w.replaceFirst("mem", "");
+                    
+                    if(BaseWordsManager.isBaseWord("m" + initialStem)){
+                        possibleBaseWords.add("m" + initialStem);
+                    } else if(BaseWordsManager.isBaseWord("p" + initialStem)){
+                        possibleBaseWords.add("p" + initialStem);
+                    }
+                    
+                    return BaseWordsManager.getFirstMatch(possibleBaseWords,w);
+                }),
+        //rule 14
+        new Rule("14", 
+                (w) -> w.startsWith("men") && (w.charAt(3) == 'c' || w.charAt(3) == 'd' || w.charAt(3) == 'j' || w.charAt(3) == 'z') ,
+                (w) -> w.replaceFirst("men", "")),
+        //rule 15
+        new Rule("15", 
+                (w) -> w.startsWith("men") && isVowel(w, 3),
+                (String w) -> {
+                ArrayList<String> possibleBaseWords = new ArrayList<>();
+                String initialStem = w.replace("men","");
+                
+                possibleBaseWords.add("n"+ initialStem);
+                possibleBaseWords.add("t" + initialStem);
+                
+                return BaseWordsManager.getFirstMatch(possibleBaseWords);
+                }),
+        //rule 16
+        new Rule("16", 
+                (w) -> w.startsWith("meng") && isGHQ(w, 4),
+                (w) -> {
+                
+                return w.replace("meng","");
+                }),
+        //rule 17
+        new Rule("17", 
+                (w) -> w.startsWith("meng") && isVowel(w, 4),
                 (w) -> {
                 ArrayList<String> possibleBaseWords = new ArrayList<>();
-                String initialStem = w.replaceFirst("per","");
+                String initialStem = w.replace("meng","");
                 
+                possibleBaseWords.add("k" + initialStem);
                 possibleBaseWords.add(initialStem);
-                possibleBaseWords.add("r" + initialStem);
                 
-                return BaseWordsManager.getFirstMatch(possibleBaseWords,w);
+                return BaseWordsManager.getFirstMatch(possibleBaseWords
+                        );
                 }),
-        //rule 23, 24, 28, 30, 31
+        //rule 18
+        new Rule("18", 
+                (w) -> w.startsWith("meny") && isVowel(w, 4),
+                (w) -> {
+                
+                return w.replace("meny","s");
+                }),
+        //rule 19
+        new Rule("19", 
+                (w) -> w.startsWith("memp") && isVowel(w,4),
+                
+                (w) -> {
+                
+                return w.replace("mem","");
+                }),
+        //rule 20
+        new Rule("20", 
+                (w) -> w.startsWith("pew")|| w.startsWith("pey") && isVowel(w,4),
+                
+                (w) -> {
+                return w.replace("pe","");
+                }),
+        //rule 21
+        new Rule("21", 
+                (w) -> w.startsWith("per") && isVowel(w, 3),
+                (w) -> {
+                ArrayList<String> possibleBaseWords = new ArrayList<>();
+                String initialStem = w.replace("per","");
+                
+                possibleBaseWords.add("r" + initialStem);
+                possibleBaseWords.add(initialStem);
+               
+                
+                return BaseWordsManager.getFirstMatch(possibleBaseWords,
+                        "r" + initialStem);
+                }),
+        //rule 23, 24, 28, 
         //........................
+        //rule 29
+        new Rule("29", 
+                (w) -> w.startsWith("peng") && isGHQ(w, 4),
+                (w) -> {
+                
+                return w.replace("peng","");
+                }),
+        //rule 30, 31
+        //.........................
         //rule 32
         new Rule("32", 
-                (w) -> w.startsWith("pel") && isVowel(w.charAt(3)),
+                (w) -> w.startsWith("pel") && isVowel(w ,3),
                 (w) -> {
                 
                  if(w.equals("pelajar")){
                      return "ajar";
                  }
                     
-                return w.replaceFirst("pe","");
+                return w.replace("pel","l");
                 })
     };
     
@@ -104,10 +210,43 @@ public class IdStemmer {
         return consonantStream.anyMatch((s) -> s == c);
     }
     
+    private static boolean isConsonant(String word, int pos){
+        //Apabila posisi diluar panjang string, return false
+        if(word.length() < pos+1){
+            return false;
+        }
+        
+        return isConsonant(word.charAt(pos));
+    }
+    
     private static boolean isVowel(char c){
         Stream<Character> vowelStream = IntStream.range(0, VOWELS.length).mapToObj(i -> VOWELS[i]);
         return vowelStream.anyMatch((s) -> s == c);
     }
+    
+    private static boolean isVowel(String word, int pos){
+        //Apabila posisi diluar panjang string, return false
+        if(word.length() < pos+1){
+            return false;
+        }
+        
+        return isVowel(word.charAt(pos));
+    }
+    
+    private static boolean isGHQ(char c){
+        Stream<Character> GHQStream = IntStream.range(0, GHQ.length).mapToObj(i -> GHQ[i]);
+        return GHQStream.anyMatch((s) -> s == c);
+    }
+    
+     private static boolean isGHQ(String word, int pos){
+        //Apabila posisi diluar panjang string, return false
+        if(word.length() < pos+1){
+            return false;
+        }
+        
+        return isGHQ(word.charAt(pos));
+    }
+    
     private static String preprocess(String word){
         return word.trim().toLowerCase();
     }
