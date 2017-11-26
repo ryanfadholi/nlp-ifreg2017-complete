@@ -105,7 +105,7 @@ public class IdStemmer {
         //rule 2
         //contoh : berlari -> lari, berjalan -> jalan, berfaedah -> faedah
         new Rule("2",
-                (w) -> (w.length() > 6) ? (w.startsWith("ber") && isConsonant(w, 3)) || (w.startsWith("ber") && isConsonant(w, 3) && (w.charAt(3) != 'r')
+                (w) -> (w.length() > 7) ? (w.startsWith("ber") && isConsonant(w, 3)) || (w.startsWith("ber") && isConsonant(w, 3) && (w.charAt(3) != 'r')
                         && (w.charAt(5) != 'e') && (w.charAt(6) != 'r')) : false,
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
@@ -118,8 +118,8 @@ public class IdStemmer {
                 }),
         //rule 3
         new Rule("3",
-                (w) -> w.startsWith("ber") && isConsonant(w.charAt(3)) && (w.charAt(3) != 'r')
-                        && (w.charAt(4) == 'a') && (w.charAt(5) == 'e') && (w.charAt(6) == 'r'),
+                (w) -> (w.length() > 7) ? w.startsWith("ber") && isConsonant(w, 3) && (w.charAt(3) != 'r')
+                        && (w.charAt(4) == 'a') && (w.charAt(5) == 'e') && (w.charAt(6) == 'r') : false,
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem = w.replaceFirst("ber","");
@@ -132,7 +132,7 @@ public class IdStemmer {
         //rule 4
         //contoh : belajar -> ajar, belunjur -> lunjur
         new Rule("4",
-                (w) -> w.startsWith("bel") && isVowel(w.charAt(3)),
+                (w) -> w.startsWith("bel") && isVowel(w, 3),
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem = w.replaceFirst("bel","");
@@ -145,9 +145,9 @@ public class IdStemmer {
         //rule 5
         //contoh : beternak -> ternak, bekerja -> kerja
         new Rule("5",
-                (w) -> w.startsWith("be") && !isVowel(w.charAt(2)) &&
+                (w) -> (w.length() > 5) ? w.startsWith("be") && !isVowel(w, 2) &&
                         (w.charAt(2) != 'r') && (w.charAt(2) != 'l') &&
-                        (w.charAt(3) == 'e') && (w.charAt(4) == 'r') ,
+                        (w.charAt(3) == 'e') && (w.charAt(4) == 'r') : false,
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem = w.replaceFirst("be","");
@@ -160,7 +160,7 @@ public class IdStemmer {
         //rule 6
         //contoh : terikat -> ikat, terasa -> rasa
         new Rule("6",
-                (w) -> w.startsWith("ter") && isVowel(w.charAt(3)),
+                (w) -> w.startsWith("ter") && isVowel(w, 3),
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem;
@@ -178,8 +178,8 @@ public class IdStemmer {
                 }),
         //rule 7
         new Rule("7",
-                (w) -> w.startsWith("ter") && isConsonant(w.charAt(3)) && (w.charAt(3) != 'r')
-                        && (w.charAt(4) == 'e') && (w.charAt(5) == 'r') && isVowel(w.charAt(6)),
+                (w) -> (w.length() > 7) ? w.startsWith("ter") && isConsonant(w, 3) && (w.charAt(3) != 'r')
+                        && (w.charAt(4) == 'e') && (w.charAt(5) == 'r') && isVowel(w, 6) : false,
                 (w) -> {
                     ArrayList<String> possibleBaseWords = new ArrayList<>();
                     String initialStem = w.replaceFirst("ter","");
@@ -408,6 +408,8 @@ public class IdStemmer {
     }
     
     private static String cutPossesivePronouns(String word){
+        
+        if(BaseWordsManager.isBaseWord(word)) return word;
         
         for(String possesive_pronoun : INFLECTION_SUFFIXES_POSSESIVE_PRONOUNS){
             if(word.endsWith(possesive_pronoun)){
